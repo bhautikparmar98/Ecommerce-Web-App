@@ -38,10 +38,25 @@
 const Product = require('../models/product')
 const Order = require('../models/orders')
 
+const ITEMS_PER_PAGE = 3
+let totalItems
+
 exports.getProducts = (req,res,next)=>{  
+    const page = +req.query.page || 1
     Product.find()
+    .countDocuments()
+    .then(numProducts=>{
+        totalItems = numProducts
+        return Product.find()
+        .skip((page-1)*ITEMS_PER_PAGE)
+        .limit(ITEMS_PER_PAGE)
+    })
     .then(products=>{
-        res.send(products)
+        res.send({
+            prods:products,
+            totalItems:totalItems,
+            currentPage:page
+        })
     })
     .catch(err=>res.send(err))
 }
