@@ -36,6 +36,7 @@
 //     }
 // ]
 const Product = require('../models/product')
+const Order = require('../models/orders')
 
 exports.getProducts = (req,res,next)=>{  
     Product.find()
@@ -54,7 +55,8 @@ exports.addProduct = (req,res,next)=>{
         title:title,
         imgUrl:imgUrl,
         price:price,
-        description:description
+        description:description,
+        userId:req.user
     })
     product.save()
     .then(result=>{
@@ -92,4 +94,29 @@ exports.deleteProduct = (req,res,next)=>{
         res.status(204).send('Product Deleted!')
     })
     .catch(err=> res.send(err))
+}
+
+exports.postOrders = (req,res,next)=>{
+    const cart = req.body.cart
+    const products = cart.map(item=>{
+        return {quantity:item.qty, product:item.id, name:item.title}
+    })
+    const order = new Order({
+        user:{name:req.user.name, userId:req.user},
+        products:products
+    })
+    order.save()
+    .then(result=>{
+        res.send('Order Created')
+    })
+}
+
+exports.getOrders = (req,res,next)=>{
+    Order.find({'user.userId':req.user._id})
+    .then(orders=>{
+        res.send(orders)
+    })
+    .catch(err=>{
+        res.send(err)
+    })
 }

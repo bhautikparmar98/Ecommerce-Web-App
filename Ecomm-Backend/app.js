@@ -3,6 +3,7 @@ const bodyParser = require('body-parser')
 const mongoConnect = require('./util/database')
 const mongoose = require('mongoose')
 const shopRoute = require('./routes/shop')
+const User = require('./models/user')
 
 const app = express()
 
@@ -17,11 +18,29 @@ app.use((req,res,next)=>{
     next()
 })
 
+app.use((req,res,next)=>{
+    User.findById('628b4694fc3c5b63ecf4a541')
+    .then(user=>{
+        req.user = user
+        next()
+    })
+})
+
 app.use(shopRoute)
 
 //if database connection success then only start the server thats y passed callback
 mongoose.connect('mongodb+srv://bhautik:iKVxMr1hfuEz6StK@cluster0.l0p55.mongodb.net/shop?retryWrites=true&w=majority')
 .then(result=>{
+    User.findOne().then(user=>{
+        if(!user){
+        const user = new User({
+            name:'bhautik parmar',
+            email:'bhautikparmar98@gmail.com',
+            items:[]
+        })
+        user.save()
+        }
+    })
     app.listen(5000)
-}).catch(err=>console.log(err))
+}).catch(err=>console.log(err))  
 
