@@ -3,7 +3,9 @@ const bodyParser = require('body-parser')
 const mongoConnect = require('./util/database')
 const mongoose = require('mongoose')
 const shopRoute = require('./routes/shop')
+const authRoute = require('./routes/auth')
 const User = require('./models/user')
+const orders = require('./models/orders')
 
 const app = express()
 
@@ -26,6 +28,7 @@ app.use((req,res,next)=>{
     })
 })
 
+app.use(authRoute)
 app.use(shopRoute)
 
 //if database connection success then only start the server thats y passed callback
@@ -34,9 +37,9 @@ mongoose.connect('mongodb+srv://bhautik:iKVxMr1hfuEz6StK@cluster0.l0p55.mongodb.
     User.findOne().then(user=>{
         if(!user){
         const user = new User({
-            name:'bhautik parmar',
             email:'bhautikparmar98@gmail.com',
-            items:[]
+            password:'Parmar@1998',
+            orders:[]
         })
         user.save()
         }
