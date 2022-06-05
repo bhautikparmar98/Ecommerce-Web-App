@@ -5,10 +5,6 @@ const OrderSchema = new Schema({
         product:{type:Object,required:true},quantity:{type:Number,required:true},name:{type:String,required:true}
     }],
     user:{
-        name:{
-            type:String,
-            required:true
-        },
         userId:{
             type:Schema.Types.ObjectId,
             required:true,

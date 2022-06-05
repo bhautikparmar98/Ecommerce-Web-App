@@ -12,7 +12,11 @@ const UserSchema = new Schema({
     },
     orders:[{
             orderId:{type:Schema.Types.ObjectId,ref:'Order',required:true},
-        }]
+        }],
+    admin:{
+        type:Boolean,
+        required:true
+    }
 })
 
 module.exports = mongoose.model('User',UserSchema)

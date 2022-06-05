@@ -27,7 +27,7 @@ app.use((req,res,next)=>{
         next()
     })
 })
-
+ 
 app.use(authRoute)
 app.use(shopRoute)
 
@@ -38,8 +38,9 @@ mongoose.connect('mongodb+srv://bhautik:iKVxMr1hfuEz6StK@cluster0.l0p55.mongodb.
         if(!user){
         const user = new User({
             email:'bhautikparmar98@gmail.com',
-            password:'Parmar@1998',
-            orders:[]
+            password:'$2a$12$9OW4FHXyTeOBbhOLt3yOIevnG3JBOw7SlNTTFrWp3uIdBwwU/Aizq',
+            orders:[],
+            admin:true
         })
         user.save()
         }

@@ -80,7 +80,7 @@ exports.postOrders = (req,res,next)=>{
         return {quantity:item.qty, product:item.id, name:item.title}
     })
     const order = new Order({
-        user:{name:req.user.name, userId:req.user},
+        user:{userId:req.userId},
         products:products
     })
     order.save()
@@ -90,7 +90,7 @@ exports.postOrders = (req,res,next)=>{
 }
 
 exports.getOrders = (req,res,next)=>{
-    Order.find({'user.userId':req.user._id})
+    Order.find({'user.userId':req.userId})
     .then(orders=>{
         res.send(orders)
     })

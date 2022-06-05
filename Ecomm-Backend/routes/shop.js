@@ -4,14 +4,16 @@ const router = express.Router()
 
 const ProductsController = require('../controllers/products')
 
+const isAuth = require('../middleware/is-auth')
+
 //Crud Operation
 router.get('/',ProductsController.getProducts)
-router.put('/edit-product',ProductsController.editProduct)
-router.post('/add-product',ProductsController.addProduct)
-router.delete('/delete',ProductsController.deleteProduct)
+router.put('/edit-product',isAuth,ProductsController.editProduct)
+router.post('/add-product',isAuth,ProductsController.addProduct)
+router.delete('/delete', isAuth, ProductsController.deleteProduct)
 
-router.post('/postOrder',ProductsController.postOrders)
-router.get('/getOrder',ProductsController.getOrders)
+router.post('/postOrder',isAuth, ProductsController.postOrders)
+router.get('/getOrder',isAuth, ProductsController.getOrders)
 
 
 module.exports = router
