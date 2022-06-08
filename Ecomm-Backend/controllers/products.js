@@ -34,7 +34,7 @@ exports.addProduct = (req,res,next)=>{
         imgUrl:imgUrl,
         price:price,
         description:description,
-        userId:req.user
+        userId:req.userId
     })
     product.save()
     .then(result=>{
@@ -56,12 +56,13 @@ exports.editProduct = (req,res,next)=>{
         product.imgUrl = updatedimgUrl
         product.price = updatedprice
         product.description = updatedDescription
+        product.userId = req.userId
         return product.save()
     })
     .then(result=>{
-        res.send('Product Updated!')
+        res.status(201).send('Product Updated!')
     })
-    .catch(err=>res.send(err))
+    .catch(err=>res.status(401).send(err))
 }
 
 exports.deleteProduct = (req,res,next)=>{
@@ -69,7 +70,7 @@ exports.deleteProduct = (req,res,next)=>{
     console.log(prodId)
     Product.findByIdAndRemove(prodId)
     .then(result=>{
-        res.status(204).send('Product Deleted!')
+       return res.status(204).send({mssg:'Product Deleted'})
     })
     .catch(err=> res.send(err))
 }
