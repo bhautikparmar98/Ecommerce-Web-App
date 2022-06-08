@@ -2,6 +2,15 @@ const {validationResult} = require('express-validator')
 const User = require('../models/user')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
+const nodemailer = require('nodemailer')
+const sendgridTransport = require('nodemailer-sendgrid-transport')
+
+//configuring Transporter for sending Emails..
+const trasporter = nodemailer.createTransport(sendgridTransport({
+    auth:{
+        api_key: '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'
+    }
+}))
 
 exports.postSignup = (req,res,next)=>{
     const email = req.body.email
@@ -21,7 +30,15 @@ exports.postSignup = (req,res,next)=>{
         })
         return user.save()
     })
-    .then(res.status(201).send('user created'))
+    .then(result=>{
+        trasporter.sendMail({
+            to:email,
+            from:'bhautikparmar98@gmail.com',  //only verified email from sendgrid can send...
+            subject:'signup succeded!',
+            html:'<h1>You Successfully signed up</h1>'
+        })
+        .then(res.status(201).send('user created'))
+    })
     .catch(err=>res.send({error:err}))
 }
 
