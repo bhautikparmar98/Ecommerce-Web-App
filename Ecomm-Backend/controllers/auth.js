@@ -78,3 +78,38 @@ exports.postLogin = (req,res,next)=>{
         return res.send({error:e})
     })
 }
+
+exports.resetPassword = (req,res,next)=>{
+    const email = req.body.email
+    const password = req.body.password
+    const errors = validationResult(req)
+    if(!errors.isEmpty()){
+        return res.status(422).send({error: errors.array()[0].msg})
+    }
+    let loadedUser
+    bcrypt.hash(password,12)
+    .then(hashedpassword=>{
+        User.findOne({email:email})
+        .then(user=>{
+            loadedUser = user
+            user.email = email
+            user.password = hashedpassword
+            user.orders = loadedUser.orders
+            user.admin = loadedUser.admin
+            return user.save()
+        })
+        .then(r=>{
+            trasporter.sendMail({
+                to:email,
+                from:'bhautikparmar98@gmail.com',  //only verified email from sendgrid can send...
+                subject:'Reset succeded!',
+                html:'<h1>Password Reset Succesfull!!</h1>'
+            })
+            .then(r=>{
+                res.status(201).send('Password Changed !!')
+            })
+        })
+        .catch(e=>res.status(400).send(e)) 
+    })
+    .catch(e=>res.status(400).send(e))
+}
