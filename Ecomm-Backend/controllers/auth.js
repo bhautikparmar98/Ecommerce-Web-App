@@ -37,8 +37,16 @@ exports.postSignup = (req,res,next)=>{
             subject:'signup succeded!',
             html:'<h1>You Successfully signed up</h1>'
         })
-        .then(res.status(201).send('user created'))
-    })
+        .then(res=>{
+            const token = jwt.sign({
+                email: loadedUser.email,
+                userId: loadedUser._id
+            },'anysecretkey',
+            { expiresIn: '1h' }   //user will not Authenticated based on token after expiration time
+            )
+            return res.status(200).send({token: token, userId: loadedUser._id.toString()})
+        })
+    }) 
     .catch(err=>res.send({error:err}))
 }
 
@@ -99,15 +107,13 @@ exports.resetPassword = (req,res,next)=>{
             return user.save()
         })
         .then(r=>{
-            trasporter.sendMail({
-                to:email,
-                from:'bhautikparmar98@gmail.com',  //only verified email from sendgrid can send...
-                subject:'Reset succeded!',
-                html:'<h1>Password Reset Succesfull!!</h1>'
-            })
-            .then(r=>{
+            // trasporter.sendMail({
+            //     to:email,
+            //     from:'bhautikparmar98@gmail.com',  //only verified email from sendgrid can send...
+            //     subject:'Reset succeded!',
+            //     html:'<h1>Password Reset Succesfull!!</h1>'
+            // })
                 res.status(201).send('Password Changed !!')
-            })
         })
         .catch(e=>res.status(400).send(e)) 
     })

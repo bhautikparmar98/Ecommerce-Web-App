@@ -1,7 +1,9 @@
 const Product = require('../models/product')
 const Order = require('../models/orders')
+const stripe = require('stripe')('sk_test_51KVx1vSJvYIXKaisdlIQMnZUOclSTeUDiyN7gDbquMgIT3jVd89rrBQ9G4tJssyJ6ah5sqJeSrgxnRqo0I7hZzMG00FdPxoEhQ')
+const uuid = require('uuid')
 
-const ITEMS_PER_PAGE = 3
+const ITEMS_PER_PAGE = 4
 let totalItems
 
 exports.getProducts = (req,res,next)=>{  
@@ -17,7 +19,7 @@ exports.getProducts = (req,res,next)=>{
     .then(products=>{
         res.send({
             prods:products,
-            totalItems:totalItems,
+            totalItems:totalItems, 
             currentPage:page
         })
     })
@@ -36,7 +38,8 @@ exports.addProduct = (req,res,next)=>{
         description:description,
         userId:req.userId
     })
-    product.save()
+    console.log('inside function')
+    return product.save()
     .then(result=>{
         console.log('created product')
         res.status(201).send('product created')
@@ -73,6 +76,30 @@ exports.deleteProduct = (req,res,next)=>{
        return res.status(204).send({mssg:'Product Deleted'})
     })
     .catch(err=> res.send(err))
+}
+
+exports.createPayment = async (req,res,next)=>{
+    try{
+        const idempotencyKey = uuid()   //this will help user to prevent to create same payment again for same product
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types:['card'],
+            line_items: req.body.cart.map(product=>{
+                return {
+                    name: product.title,
+                    description: product.description,
+                    amount: product.price * 100,
+                    currency: 'inr',
+                    quantity: product.qty
+                }
+            }),
+            success_url: req.protocol + '://' + 'localhost:3000' + '/checkout/success',
+            cancel_url: req.protocol + '://' + 'localhost:3000' + '/checkout/fail'
+        })
+        res.send({url:session.url})
+    }
+    catch(e){
+        res.send({error:e.message})
+    }
 }
 
 exports.postOrders = (req,res,next)=>{

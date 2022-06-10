@@ -19,7 +19,8 @@
     "mongodb": "^4.6.0",
     "mongoose": "^6.3.4",
     "nodemailer": "^6.7.5",
-    "nodemailer-sendgrid-transport": "^0.2.0"
+    "nodemailer-sendgrid-transport": "^0.2.0",
+    "stripe": "^9.8.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.15"
