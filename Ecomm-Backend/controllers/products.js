@@ -93,7 +93,7 @@ exports.createPayment = async (req,res,next)=>{
                 }
             }),
             success_url: req.protocol + '://' + 'localhost:3000' + '/checkout/success',
-            cancel_url: req.protocol + '://' + 'localhost:3000' + '/checkout/fail'
+            cancel_url: req.protocol + '://' + 'localhost:5000' + '/checkout/fail'
         })
         res.send({url:session.url})
     }
@@ -114,7 +114,7 @@ exports.postOrders = (req,res,next)=>{
     order.save()
     .then(result=>{
         res.send('Order Created')
-    })
+    }) 
 }
 
 exports.getOrders = (req,res,next)=>{

@@ -8,7 +8,7 @@ const sendgridTransport = require('nodemailer-sendgrid-transport')
 //configuring Transporter for sending Emails..
 const trasporter = nodemailer.createTransport(sendgridTransport({
     auth:{
-        api_key: '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'
+        api_key: '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'
     }
 }))
 
@@ -17,6 +17,7 @@ exports.postSignup = (req,res,next)=>{
     const password = req.body.password
     const confrimpassword = req.body.confrimpassword
     const errors = validationResult(req)
+    let loadedUser
     if(!errors.isEmpty()){
         return res.status(422).send({error:errors.array()[0].msg})
     }
@@ -30,22 +31,24 @@ exports.postSignup = (req,res,next)=>{
         })
         return user.save()
     })
-    .then(result=>{
+    .then(user=>{
+        loadedUser = user
         trasporter.sendMail({
             to:email,
             from:'bhautikparmar98@gmail.com',  //only verified email from sendgrid can send...
             subject:'signup succeded!',
             html:'<h1>You Successfully signed up</h1>'
         })
-        .then(res=>{
+        .then(result=>{
             const token = jwt.sign({
                 email: loadedUser.email,
                 userId: loadedUser._id
-            },'anysecretkey',
+            },'anysecretkey', 
             { expiresIn: '1h' }   //user will not Authenticated based on token after expiration time
             )
             return res.status(200).send({token: token, userId: loadedUser._id.toString()})
         })
+        .catch(e=>console.log(e))
     }) 
     .catch(err=>res.send({error:err}))
 }
@@ -106,16 +109,17 @@ exports.resetPassword = (req,res,next)=>{
             user.admin = loadedUser.admin
             return user.save()
         })
-        .then(r=>{
-            // trasporter.sendMail({
-            //     to:email,
-            //     from:'bhautikparmar98@gmail.com',  //only verified email from sendgrid can send...
-            //     subject:'Reset succeded!',
-            //     html:'<h1>Password Reset Succesfull!!</h1>'
-            // })
-                res.status(201).send('Password Changed !!')
+        .then(result=>{
+            trasporter.sendMail({
+                to:email,
+                from:'bhautikparmar98@gmail.com',  //only verified email from sendgrid can send...
+                subject:'Reset succeded!',
+                html:'<h1>Password Reset Succesfull!!</h1>'
+            })
+            .then(r=>res.status(201).json({response:'Password Changed !!'}))
+            .catch(e=>res.status(400).send({error:e}))
         })
-        .catch(e=>res.status(400).send(e)) 
+        .catch(e=>res.status(400).send({error:e})) 
     })
-    .catch(e=>res.status(400).send(e))
+    .catch(e=>res.status(400).send({error:e}))
 }
